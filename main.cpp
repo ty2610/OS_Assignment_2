@@ -43,14 +43,24 @@ int main() {
         // cout << "\033[1;32m" <<  "Hello world"  << "\033[0m\n"; 
         // Colors: Green(32) and Blue(34) from cplusplus.com 
         cout << "osshell> ";
-        cin >> id;
+        getline (cin, id);
         if(id == "exit")
         {
             running = false;
             break;
         }
-        char *arg[] = {"ls","-l"};
-        string pathLocation = SearchPath(id,splitted);
+        
+        int spaces = count(id.begin(),id.end(),' ');
+        string *arg = new string[spaces+1]; // One less space than arguments
+        int position = 0;
+        string delimiter = " ";
+        for(int i=0; i<amountOfColons+1; i++) {
+            position = id.find(delimiter);
+            arg[i] = id.substr(0, position);
+            id.erase(0, position + delimiter.length());
+        }
+        
+        string pathLocation = SearchPath(arg[0],splitted);
         cout << pathLocation << endl;
         if (pathLocation != "")
         {
@@ -78,9 +88,7 @@ int main() {
         {
             cout << id << ": Error running command" << endl;
         }
-        
-    }
-    
+    }  
     return 0;
 }
 
@@ -118,7 +126,6 @@ string SearchPath(string path, string *splitted)
                 {
                     return splitted[i] + "/" + path;
                 }
-                //cout << fname << ":" << path << endl;
             }
         }
     }  
