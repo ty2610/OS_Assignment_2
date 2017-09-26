@@ -1,12 +1,18 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h> 
+
 //This is a CPP that will be compiled under c++ standard 11
 //compilable with g++ -o main main.cpp -std=c++11
 
 using namespace std;
 
 string* splitStringWithDelimeter(string path, string delimeter);
+
+string SearchPath(string path, string *splitted); 
 
 int main() {
     //getenv() will determine the PATH environment variable
@@ -19,23 +25,62 @@ int main() {
     int position = 0;
     string delimiter = ":";
 
-    cout << path << endl;
+    //cout << path << endl;
 
     for(int i=0; i<amountOfColons+1; i++) {
         position = path.find(delimiter);
         splitted[i] = path.substr(0, position);
-        cout << splitted[i] << endl;
+        //cout << splitted[i] << endl;
         path.erase(0, position + delimiter.length());
     }
-    /*while(!valid) {
-        getline(cin, id);
-        if(false){
-            valid = true;
-        } else {
-            getline(cin, id);
+    
+    bool running = true;
+    
+    // Input/Output to screen
+    cout << "Welcome to OSShell!! Please enter your commands ('exit' to quit)." << endl;
+    while(running == true)
+    {
+        // cout << "\033[1;32m" <<  "Hello world"  << "\033[0m\n"; 
+        // Colors: Green(32) and Blue(34) from cplusplus.com 
+        cout << "osshell> ";
+        cin >> id;
+        if(id == "exit")
+        {
+            running = false;
+            break;
         }
-    }*/
-
+        char *arg[] = {"ls","-l"};
+        string pathLocation = SearchPath(id,splitted);
+        cout << pathLocation << endl;
+        if (pathLocation != "")
+        {
+            pid_t pFork = fork();
+            switch(pFork)
+            {
+                case -1:
+                {
+                    // Error Handling
+                } break;
+                case 0:
+                {
+                    // Child Process
+                    execv(pathLocation.c_str(),arg);
+                } break;
+                default:
+                {
+                    // Parent Process
+                } break;
+            
+            }
+            
+        }
+        else
+        {
+            cout << id << ": Error running command" << endl;
+        }
+        
+    }
+    
     return 0;
 }
 
@@ -49,4 +94,33 @@ string* splitStringWithDelimeter(string path, string delimiter) {
         cout << splitted[i] << endl;
         path.erase(0, position + delimiter.length());
     }
+}
+
+string SearchPath(string path, string *splitted) 
+// Search the path directories to see if command exists
+{
+    /* Used cplusplus.com to understand file directories 
+    in C++ and how to manuver in them*/
+    for(int i = 0; i < 11; i++)
+    {   
+        DIR *dir = opendir(splitted[i].c_str());
+        if (dir == NULL)
+        {
+            cout << "Error Opening " << splitted[i].c_str() << endl;
+        }
+        else
+        {
+            struct dirent *ent;
+            while((ent = readdir(dir)) != NULL)
+            {
+                string fname = ent->d_name;
+                if (fname == path)
+                {
+                    return splitted[i] + "/" + path;
+                }
+                //cout << fname << ":" << path << endl;
+            }
+        }
+    }  
+    return "";
 }
