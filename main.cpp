@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 //This is a CPP that will be compiled under c++ standard 11
 //compilable with g++ -o main main.cpp -std=c++11
@@ -13,10 +14,14 @@ using namespace std;
 string* splitStringWithDelimeter(string path, string delimeter);
 
 string SearchPath(string path, string *splitted);
+void lsr(string osLocation, string arg);
+void lsRecursion(DIR *parent);
+
 
 int main() {
     //getenv() will determine the PATH environment variable
     //use fork() and execv() for spawning new processes
+	//lsr("C:\\Users\\mill0604\\Desktop\\testFolder",""); //just used for testing lsr()
     string id;
     string path = getenv("PATH");
     string *splitted;
@@ -62,7 +67,7 @@ int main() {
         cout << pathLocation << endl;
         if (pathLocation != "")
         {
-            pid_t pFork = fork();
+            /*pid_t pFork = fork();
             switch(pFork)
             {
                 case -1:
@@ -72,7 +77,7 @@ int main() {
                 case 0:
                 {
                     // Child Process
-                    execv(pathLocation.c_str(),arg);
+                    //execv(pathLocation.c_str(),arg);
                     //input is a string* but the function needs a char* const*
                 } break;
                 default:
@@ -80,7 +85,7 @@ int main() {
                     // Parent Process
                 } break;
 
-            }
+            }*/
 
         }
         else
@@ -131,3 +136,78 @@ string SearchPath(string path, string *splitted)
     }
     return "";
 }
+
+void lsr(string osLocation, string arg)
+/*TODO:
+	-specifics mentioned in lsRecursion
+	-implement printDir
+	-error checking
+
+*/
+
+//if they don't type in an argument, pass the directory osshell is using
+//if they do, pass that as well
+{
+	
+	if(!arg.compare(""))
+	{
+		printf("no parent\n");
+		DIR *dir = opendir(osLocation.c_str());
+		lsRecursion(dir);
+		
+	} else {
+		std::string temp = arg; //for putting the directory together
+		printf("yes parent\n");
+		temp = osLocation + temp;
+		cout << temp;
+		DIR *dir = opendir(temp.c_str());
+		
+		
+		
+	}
+	
+	
+}
+
+void lsRecursion(DIR *parent)
+
+{
+	struct stat s;
+	dirent *currentEntry;
+	readdir(parent);
+	readdir(parent);
+	while( (currentEntry = readdir(parent)) != NULL)
+	{
+		stat(currentEntry->d_name, &s);
+		if ((s.st_mode & S_IFMT) == S_IFDIR) //for some reason this doesn't identify if it's a folder - never true
+		{
+			printf("WE'RE DOING RECURSION\n\n\n");
+			lsRecursion((DIR*)currentEntry);//incorrect way to change dirent into DIR, gotta find out how
+		}
+		printf("I have a file\n");
+		cout << currentEntry->d_name;
+	}
+	
+	/*
+	string str(readdir(parent)->d_name);
+	cout << str <<"\n";
+	string str2(readdir(parent)->d_name);
+	cout << str2 <<"\n";
+	string str3(readdir(parent)->d_name);
+	cout << str3 <<"\n";
+	string str4(readdir(parent)->d_name);
+	cout << str4 <<"\n";
+	string str5(readdir(parent)->d_name);
+	cout << str5 <<"\n";
+	string str6(readdir(parent)->d_name);
+	cout << str6 <<"\n";
+	*/
+}
+
+/*
+void printDir(DIR *directory)
+{
+	
+	
+}
+	*/
