@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <stdio.h>
 
 //This is a CPP that will be compiled under c++ standard 11
 //compilable with g++ -o main main.cpp -std=c++11
@@ -205,9 +206,16 @@ void lsRecursion(DIR *parent)
 }
 
 /*
-void printDir(DIR *directory)
+void printDir(DIR *directory) //The below is an idea or start for printing things out from the directory 
 {
-	
+	if ((data.attribute & _A_SUBDIR) == _A_SUBDIR)
+	{
+		cout <<	"[" <<data.name<< "]" << endl;
+	}
+	else
+	{
+		cout << data.name << endl;
+	}
 	
 }
 	*/
