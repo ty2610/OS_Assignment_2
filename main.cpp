@@ -6,6 +6,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <sys/wait.h>
 
 //This is a CPP that will be compiled under c++ standard 11
 //compilable with g++ -o main main.cpp -std=c++11
@@ -25,19 +26,12 @@ int main() {
 	//lsr("C:\\Users\\mill0604\\Desktop\\testFolder",""); //just used for testing lsr()
     string id;
     string path = getenv("PATH");
-    string *splitted;
     string colonDelimiter = ":";
+    string *splitted = splitStringWithDelimeter(path,colonDelimiter); // this function is to only be used on delimeters of String type of size 1
 
     cout << path << endl;
 
-    /*for(int i=0; i<amountOfColons+1; i++) {
-        position = path.find(delimiter);
-        splitted[i] = path.substr(0, position);
-        cout << splitted[i] << endl;
-        path.erase(0, position + delimiter.length());
-    }*/
 
-    splitted = splitStringWithDelimeter(path,colonDelimiter); // this function is to only be used on delimeters of String type of size 1
 
     bool running = true;
 
@@ -55,43 +49,44 @@ int main() {
             break;
         }
 
-        string *arg;
-        string spaceDelimiter = " ";
-        /*for(int i=0; i<amountOfColons+1; i++) {
-            position = id.find(delimiter);
-            arg[i] = id.substr(0, position);
-            id.erase(0, position + delimiter.length());
-        }*/
-        arg = splitStringWithDelimeter(id,spaceDelimiter);
+        if(id != "") {
+            string spaceDelimiter = " ";
+            string *temp = splitStringWithDelimeter(id, spaceDelimiter);
 
-        string pathLocation = SearchPath(arg[0],splitted);
-        cout << pathLocation << endl;
-        if (pathLocation != "")
-        {
-            /*pid_t pFork = fork();
-            switch(pFork)
-            {
-                case -1:
-                {
-                    // Error Handling
-                } break;
-                case 0:
-                {
-                    // Child Process
-                    //execv(pathLocation.c_str(),arg);
-                    //input is a string* but the function needs a char* const*
-                } break;
-                default:
-                {
-                    // Parent Process
-                } break;
+            int len = count(id.begin(), id.end(), ' ');
+            char **arg = new char *[len + 1];
+            for (int i = 0; i < len + 1; i++) {
+                arg[i] = (char *) temp[i].c_str();
+            }
+            string pathLocation = SearchPath(arg[0], splitted);
+            cout << "The found path is: " << pathLocation << endl;
+            if (pathLocation != "") {
+                pid_t pFork = fork();
+                switch (pFork) {
+                    case -1: {
+                        // Error Handling
+                        cout << "ERROR FORK" << endl;
+                    }
+                        break;
+                    case 0: {
+                        // Child Process
+                        cout << "Child Process " << endl;
+                        execv(pathLocation.c_str(), arg);
+                    }
+                        break;
+                    default: {
+                        // Parent Process
+                        cout << "PARENT PROCESS" << endl;
+                        wait(NULL);
+                        cout << "PARENT DONE WAITING" << endl;
+                    }
+                        break;
 
-            }*/
+                }
 
-        }
-        else
-        {
-            cout << id << ": Error running command" << endl;
+            } else {
+                cout << id << ": Error running command" << endl;
+            }
         }
     }
     return 0;
