@@ -52,6 +52,7 @@ int main() {
         if(id != "") {
             string spaceDelimiter = " ";
             string *temp = splitStringWithDelimeter(id, spaceDelimiter);
+            int returnStatus;
 
             int len = count(id.begin(), id.end(), ' ');
             char **arg = new char *[len + 1];
@@ -59,6 +60,10 @@ int main() {
                 arg[i] = (char *) temp[i].c_str();
             }
             string pathLocation = SearchPath(arg[0], splitted);
+            cout << "The given arguments are: " << endl;
+            for(int i=0; i<len+1; i++) {
+                cout << arg[i] << endl;
+            }
             cout << "The found path is: " << pathLocation << endl;
             if (pathLocation != "") {
                 pid_t pFork = fork();
@@ -77,7 +82,8 @@ int main() {
                     default: {
                         // Parent Process
                         cout << "PARENT PROCESS" << endl;
-                        wait(NULL);
+                        //wait(NULL);
+                        waitpid(pFork, &returnStatus, 0);
                         cout << "PARENT DONE WAITING" << endl;
                     }
                         break;
