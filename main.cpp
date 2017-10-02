@@ -29,7 +29,7 @@ int main() {
     string colonDelimiter = ":";
     string *splitted = splitStringWithDelimeter(path,colonDelimiter); // this function is to only be used on delimeters of String type of size 1
 
-    cout << path << endl;
+    //cout << path << endl;
 
 
 
@@ -59,32 +59,33 @@ int main() {
             for (int i = 0; i < len + 1; i++) {
                 arg[i] = (char *) temp[i].c_str();
             }
+            arg[len+1] = NULL;
             string pathLocation = SearchPath(arg[0], splitted);
-            cout << "The given arguments are: " << endl;
-            for(int i=0; i<len+1; i++) {
+            //cout << "The given arguments are: " << endl;
+            /*for(int i=0; i<len+1; i++) {
                 cout << arg[i] << endl;
-            }
-            cout << "The found path is: " << pathLocation << endl;
+            }*/
+            //cout << "The found path is: " << pathLocation << endl;
             if (pathLocation != "") {
                 pid_t pFork = fork();
                 switch (pFork) {
                     case -1: {
                         // Error Handling
-                        cout << "ERROR FORK" << endl;
+                        //cout << "ERROR FORK" << endl;
                     }
                         break;
                     case 0: {
                         // Child Process
-                        cout << "Child Process " << endl;
+                        //cout << "Child Process " << endl;
                         execv(pathLocation.c_str(), arg);
                     }
                         break;
                     default: {
                         // Parent Process
-                        cout << "PARENT PROCESS" << endl;
+                        //cout << "PARENT PROCESS" << endl;
                         //wait(NULL);
                         waitpid(pFork, &returnStatus, 0);
-                        cout << "PARENT DONE WAITING" << endl;
+                        //cout << "PARENT DONE WAITING" << endl;
                     }
                         break;
 
