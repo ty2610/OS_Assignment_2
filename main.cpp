@@ -16,14 +16,17 @@ using namespace std;
 string* splitStringWithDelimeter(string path, string delimeter);
 
 string SearchPath(string path, string *splitted);
-void lsr(string osLocation, string arg);
-void lsRecursion(DIR *parent);
+void lsr(string arg);
+void lsRecursion(DIR *parent, string parentPath, int howDeep);
+void printDir(DIR *directory, int howDeep);
 
 
 int main() {
     //getenv() will determine the PATH environment variable
     //use fork() and execv() for spawning new processes
-	//lsr("C:\\Users\\mill0604\\Desktop\\testFolder",""); //just used for testing lsr()
+	//lsr(""); //just used for testing lsr()
+
+
     string id;
     string path = getenv("PATH");
     string colonDelimiter = ":";
@@ -140,31 +143,30 @@ string SearchPath(string path, string *splitted)
     return "";
 }
 
-void lsr(string osLocation, string arg)
+void lsr(string arg)
 /*TODO:
-	-specifics mentioned in lsRecursion
 	-implement printDir
 	-error checking
 
 */
 
-//if they don't type in an argument, pass the directory osshell is using
-//if they do, pass that as well
+//if they type in an argument, pass that. If not, pass an empty string
 {
 	
-	if(!arg.compare(""))
+	if(arg.compare("")==0)
 	{
 		printf("no parent\n");
-		DIR *dir = opendir(osLocation.c_str());
-		lsRecursion(dir);
+		DIR *dir = opendir("./");
+		lsRecursion(dir,"./", 0);
 		
 	} else {
+		std::string osLocation = "./";
 		std::string temp = arg; //for putting the directory together
 		printf("yes parent\n");
 		temp = osLocation + temp;
-		cout << temp;
+		cout << temp << "\n";
 		DIR *dir = opendir(temp.c_str());
-		
+		lsRecursion(dir,temp, 0);
 		
 		
 	}
@@ -172,43 +174,38 @@ void lsr(string osLocation, string arg)
 	
 }
 
-void lsRecursion(DIR *parent)
+void lsRecursion(DIR *parent,string parentPath, int howDeep)
 
 {
+	printf("lsRecursion started\n");
 	struct stat s;
 	dirent *currentEntry;
-	readdir(parent);
-	readdir(parent);
-	while( (currentEntry = readdir(parent)) != NULL)
-	{
-		stat(currentEntry->d_name, &s);
-		if ((s.st_mode & S_IFMT) == S_IFDIR) //for some reason this doesn't identify if it's a folder - never true
-		{
-			printf("WE'RE DOING RECURSION\n\n\n");
-			lsRecursion((DIR*)currentEntry);//incorrect way to change dirent into DIR, gotta find out how
-		}
-		printf("I have a file\n");
-		cout << currentEntry->d_name;
-	}
 	
-	/*
-	string str(readdir(parent)->d_name);
-	cout << str <<"\n";
-	string str2(readdir(parent)->d_name);
-	cout << str2 <<"\n";
-	string str3(readdir(parent)->d_name);
-	cout << str3 <<"\n";
-	string str4(readdir(parent)->d_name);
-	cout << str4 <<"\n";
-	string str5(readdir(parent)->d_name);
-	cout << str5 <<"\n";
-	string str6(readdir(parent)->d_name);
-	cout << str6 <<"\n";
-	*/
+	//printDir(parent, howDeep); //NYI
+	
+	while(( currentEntry = readdir(parent)) != NULL)
+	{
+		printf("howDeep= %d",howDeep);
+		if(currentEntry->d_name[0]!='.' )
+		{//if the name of the entry doesn't start with a period
+			printf("FILE WITH NO PERIOD: ");
+			cout << currentEntry->d_name << "\n";
+		//(if it starts with a period, we can ignore it)	
+
+			if(stat(currentEntry->d_name, &s) == 0 && S_ISDIR(s.st_mode))
+			{//if it's a directory
+				DIR *recursiveDir = opendir( (parentPath + currentEntry->d_name).c_str() );
+				lsRecursion(recursiveDir,parentPath + currentEntry->d_name, howDeep+1);
+			}
+		} else {
+			printf("FILE WITH A PERIOD: ");
+			cout << currentEntry->d_name << "\n";
+		}
+	}
 }
 
 /*
-void printDir(DIR *directory) //The below is an idea or start for printing things out from the directory 
+void printDir(DIR *directory, int howDeep) //The below is an idea or start for printing things out from the directory 
 {
 	if ((data.attribute & _A_SUBDIR) == _A_SUBDIR)
 	{
@@ -220,4 +217,20 @@ void printDir(DIR *directory) //The below is an idea or start for printing thing
 	}
 	
 }
+
+logic for printDir:
+
+printdir(dir,howdeep)
+string prefix = "";
+for(int i=0; i<howdeep; i++)
+{
+	prefix += "\t";
+}
+
+<printing logic>
+print line:
+cout << (color) << prefix << filename << "\n" << (default color);
+
+
+
 	*/
