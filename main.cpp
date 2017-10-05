@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <pwd.h>
 
 //This is a CPP that will be compiled under c++ standard 11
 //compilable with g++ -o main main.cpp -std=c++11
@@ -18,13 +19,13 @@ string* splitStringWithDelimeter(string path, string delimeter);
 string SearchPath(string path, string *splitted);
 void lsr(string arg);
 void lsRecursion(DIR *parent, string parentPath, int howDeep);
-void printDir(DIR *directory, int howDeep);
+void printDirent(DIR *directory, int howDeep);
 
 
 int main() {
     //getenv() will determine the PATH environment variable
     //use fork() and execv() for spawning new processes
-	lsr("~/"); //just used for testing lsr()
+	//lsr("~/"); //just used for testing lsr()
 
 
     string id;
@@ -155,19 +156,24 @@ void lsr(string arg)
 	
 	if(arg.compare("")==0)
 	{
-		printf("no parent\n");
+		printf("<NO ARG GIVEN>\n");//debug text
 		DIR *dir = opendir("./");
 		lsRecursion(dir,"./", 0);
 		
 	} else {
-		//std::string osLocation = "./";
-		//std::string temp = arg; //for putting the directory together
-		printf("yes parent\n");
-		//temp = osLocation + temp;
-		//cout << temp << "\n";
-		if( (dir = opendir(arg.c_str()) == NULL)
+		printf("<ARG GIVEN>\n"); //debug text
+
+		if(!arg.compare(0,1,"~"))
+		{//if using shorthand for home folder
+			arg.replace(0,1,getpwuid(getuid())->pw_dir);
+		}
+
+		DIR *dir = opendir(arg.c_str());
+
+		//input checking
+		if( dir == NULL)
 		{//if unable to open file
-			perror("Unable to open file");
+			perror("Unable to open");
 		}
 		else
 		{
@@ -187,15 +193,16 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 	struct stat s;
 	dirent *currentEntry;
 	
-	//printDir(parent, howDeep); //NYI
+	//printDirent(parent, howDeep); //MOVED TO NEW LOCATION, SEE BELOW
 	
 	while(( currentEntry = readdir(parent)) != NULL)
 	{
 		printf("howDeep= %d",howDeep);
 		if(currentEntry->d_name[0]!='.' )
 		{//if the name of the entry doesn't start with a period
-			printf("FILE WITH NO PERIOD: ");
-			cout << currentEntry->d_name << "\n";
+			printf("FILE WITH NO PERIOD: ");//DEBUG TEXT
+			cout << currentEntry->d_name << "\n";//DEBUG TEXT, eventually replace with next line
+			//printDirent(currentEntry, howDeep); //NYI
 		//(if it starts with a period, we can ignore it)	
 
 			if(stat(currentEntry->d_name, &s) == 0 && S_ISDIR(s.st_mode))
@@ -204,8 +211,8 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 				lsRecursion(recursiveDir,parentPath + currentEntry->d_name, howDeep+1);
 			}
 		} else {
-			printf("FILE WITH A PERIOD: ");
-			cout << currentEntry->d_name << "\n";
+			printf("FILE WITH A PERIOD: ");//DEBUG TEXT
+			cout << currentEntry->d_name << "\n";//DEBUG TEXT
 		}
 	}
 }
