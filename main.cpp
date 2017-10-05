@@ -24,7 +24,7 @@ void printDir(DIR *directory, int howDeep);
 int main() {
     //getenv() will determine the PATH environment variable
     //use fork() and execv() for spawning new processes
-	//lsr(""); //just used for testing lsr()
+	lsr("~/"); //just used for testing lsr()
 
 
     string id;
@@ -160,14 +160,20 @@ void lsr(string arg)
 		lsRecursion(dir,"./", 0);
 		
 	} else {
-		std::string osLocation = "./";
-		std::string temp = arg; //for putting the directory together
+		//std::string osLocation = "./";
+		//std::string temp = arg; //for putting the directory together
 		printf("yes parent\n");
-		temp = osLocation + temp;
-		cout << temp << "\n";
-		DIR *dir = opendir(temp.c_str());
-		lsRecursion(dir,temp, 0);
-		
+		//temp = osLocation + temp;
+		//cout << temp << "\n";
+		if( (dir = opendir(arg.c_str()) == NULL)
+		{//if unable to open file
+			perror("Unable to open file");
+		}
+		else
+		{
+			DIR *dir = opendir(arg.c_str());
+			lsRecursion(dir,arg, 0);
+		}
 		
 	}
 	
@@ -205,7 +211,7 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 }
 
 /*
-void printDir(DIR *directory, int howDeep) //The below is an idea or start for printing things out from the directory 
+void printDirent(DIR *directory, int howDeep) //The below is an idea or start for printing things out from the directory 
 {
 	if ((data.attribute & _A_SUBDIR) == _A_SUBDIR)
 	{
