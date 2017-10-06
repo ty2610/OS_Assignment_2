@@ -17,7 +17,7 @@ string* splitStringWithDelimeter(string path, string delimeter);
 string SearchPath(string path, string *splitted);
 void lsr(string arg);
 void lsRecursion(DIR *parent, string parentPath, int howDeep);
-void printDir(DIR *directory, int howDeep);
+void printDirent(DIR *directory, int howDeep);
 string trimWhiteSpace(string str);
 
 
@@ -189,13 +189,14 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 	struct stat s;
 	dirent *currentEntry;
 	
-	//printDir(parent, howDeep); //NYI
+	
 	
 	while(( currentEntry = readdir(parent)) != NULL)
 	{
 		printf("howDeep= %d",howDeep);
 		if(currentEntry->d_name[0]!='.' )
 		{//if the name of the entry doesn't start with a period
+			//printDirent(parent, howDeep); //NYI
 			printf("FILE WITH NO PERIOD: ");
 			cout << currentEntry->d_name << "\n";
 		//(if it starts with a period, we can ignore it)	
@@ -223,19 +224,19 @@ string trimWhiteSpace(string str) {
 }
 
 /*
-void printDir(DIR *directory, int howDeep) //The below is an idea or start for printing things out from the directory 
+void printDirent(DIR *directory, int howDeep)
 {
-	if ((data.attribute & _A_SUBDIR) == _A_SUBDIR)
+	dirent *currentEntry;
+	for(int i=0; i < howDeep;i++)
 	{
-		cout <<	"[" <<data.name<< "]" << endl;
+		printf("Entering printDirent: ");
+		printf("FILE WITH NO PERIOD: ");
+		cout << currentEntry->d_name << "\n";
+		//cout <<	"[" <<data.name<< "]" << endl;
 	}
-	else
-	{
-		cout << data.name << endl;
-	}
-	
+	return;
 }
-
+/*
 logic for printDir:
 
 printdir(dir,howdeep)
