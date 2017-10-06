@@ -14,11 +14,11 @@
 using namespace std;
 
 string* splitStringWithDelimeter(string path, string delimeter);
-
 string SearchPath(string path, string *splitted);
 void lsr(string arg);
 void lsRecursion(DIR *parent, string parentPath, int howDeep);
 void printDir(DIR *directory, int howDeep);
+string trimWhiteSpace(string str);
 
 
 int main() {
@@ -53,49 +53,57 @@ int main() {
         }
 
         if(id != "") {
-            string spaceDelimiter = " ";
-            string *temp = splitStringWithDelimeter(id, spaceDelimiter);
-            int returnStatus;
-
-            int len = count(id.begin(), id.end(), ' ');
-            char **arg = new char *[len + 1];
-            for (int i = 0; i < len + 1; i++) {
-                arg[i] = (char *) temp[i].c_str();
-            }
-            arg[len+1] = NULL;
-            string pathLocation = SearchPath(arg[0], splitted);
-            //cout << "The given arguments are: " << endl;
-            /*for(int i=0; i<len+1; i++) {
-                cout << arg[i] << endl;
-            }*/
-            //cout << "The found path is: " << pathLocation << endl;
-            if (pathLocation != "") {
-                pid_t pFork = fork();
-                switch (pFork) {
-                    case -1: {
-                        // Error Handling
-                        //cout << "ERROR FORK" << endl;
-                    }
-                        break;
-                    case 0: {
-                        // Child Process
-                        //cout << "Child Process " << endl;
-                        execv(pathLocation.c_str(), arg);
-                    }
-                        break;
-                    default: {
-                        // Parent Process
-                        //cout << "PARENT PROCESS" << endl;
-                        //wait(NULL);
-                        waitpid(pFork, &returnStatus, 0);
-                        //cout << "PARENT DONE WAITING" << endl;
-                    }
-                        break;
-
-                }
-
+            //Looked for best way to trim whitespace
+            //https://stackoverflow.com/questions/25829143/c-trim-whitespace-from-a-string
+            if (trimWhiteSpace(id) == "lsr") {
+                lsr("");
+            } else if (trimWhiteSpace(id).substr(0,4) == "lsr ") {
+                lsr(trimWhiteSpace(id.substr(3)));
             } else {
-                cout << id << ": Error running command" << endl;
+                string spaceDelimiter = " ";
+                string *temp = splitStringWithDelimeter(id, spaceDelimiter);
+                int returnStatus;
+
+                int len = count(id.begin(), id.end(), ' ');
+                char **arg = new char *[len + 1];
+                for (int i = 0; i < len + 1; i++) {
+                    arg[i] = (char *) temp[i].c_str();
+                }
+                arg[len + 1] = NULL;
+                string pathLocation = SearchPath(arg[0], splitted);
+                //cout << "The given arguments are: " << endl;
+                /*for(int i=0; i<len+1; i++) {
+                    cout << arg[i] << endl;
+                }*/
+                //cout << "The found path is: " << pathLocation << endl;
+                if (pathLocation != "") {
+                    pid_t pFork = fork();
+                    switch (pFork) {
+                        case -1: {
+                            // Error Handling
+                            //cout << "ERROR FORK" << endl;
+                        }
+                            break;
+                        case 0: {
+                            // Child Process
+                            //cout << "Child Process " << endl;
+                            execv(pathLocation.c_str(), arg);
+                        }
+                            break;
+                        default: {
+                            // Parent Process
+                            //cout << "PARENT PROCESS" << endl;
+                            //wait(NULL);
+                            waitpid(pFork, &returnStatus, 0);
+                            //cout << "PARENT DONE WAITING" << endl;
+                        }
+                            break;
+
+                    }
+
+                } else {
+                    cout << id << ": Error running command" << endl;
+                }
             }
         }
     }
@@ -125,7 +133,7 @@ string SearchPath(string path, string *splitted)
         DIR *dir = opendir(splitted[i].c_str());
         if (dir == NULL)
         {
-            cout << "Error Opening " << splitted[i].c_str() << endl;
+            //cout << "Error Opening " << splitted[i].c_str() << endl;
         }
         else
         {
@@ -202,6 +210,16 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 			cout << currentEntry->d_name << "\n";
 		}
 	}
+}
+
+string trimWhiteSpace(string str) {
+    size_t first = str.find_first_not_of(' ');
+    if (string::npos == first)
+    {
+        return str;
+    }
+    size_t last = str.find_last_not_of(' ');
+    return str.substr(first, (last - first + 1));
 }
 
 /*
