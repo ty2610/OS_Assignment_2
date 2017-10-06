@@ -189,29 +189,43 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 	struct stat s;
 	dirent *currentEntry;
 	
-	
+	//printDir(parent, howDeep); //NYI
 	
 	while(( currentEntry = readdir(parent)) != NULL)
 	{
-		printf("howDeep= %d",howDeep);
+		//printf("howDeep= %d",howDeep);
 		if(currentEntry->d_name[0]!='.' )
-		{//if the name of the entry doesn't start with a period
-			//printDirent(parent, howDeep); //NYI
-			printf("FILE WITH NO PERIOD: ");
-			cout << currentEntry->d_name << "\n";
-		//(if it starts with a period, we can ignore it)	
-
+		{   
+		    //if the name of the entry doesn't start with a period
+			//printf("FILE WITH NO PERIOD: ");
+			string f = "";
+            for(int i=0; i<howDeep; i++)
+            {
+                f += "    ";
+            }
+		    //(if it starts with a period, we can ignore it)	
 			if(stat(currentEntry->d_name, &s) == 0 && S_ISDIR(s.st_mode))
 			{//if it's a directory
-				DIR *recursiveDir = opendir( (parentPath + currentEntry->d_name).c_str() );
+			    cout << f << "\033[1;34m" << currentEntry->d_name << " (Directory)\033[0m\n";
+			    DIR *recursiveDir = opendir( (parentPath + currentEntry->d_name).c_str() );
 				lsRecursion(recursiveDir,parentPath + currentEntry->d_name, howDeep+1);
 			}
+			else if(s.st_mode & S_IEXEC)
+			{
+			    cout << f << "\033[1;32m" << currentEntry->d_name << "\n";
+			}
+			else
+			{
+			    cout << f << "\033[0m" << currentEntry->d_name << "\n";
+			}
+			cout << "\033[0m";
 		} else {
-			printf("FILE WITH A PERIOD: ");
-			cout << currentEntry->d_name << "\n";
+			//printf("FILE WITH A PERIOD: ");
+			//cout << currentEntry->d_name << "\n";
 		}
 	}
 }
+
 
 string trimWhiteSpace(string str) {
     size_t first = str.find_first_not_of(' ');
