@@ -19,7 +19,6 @@ string* splitStringWithDelimeter(string path, string delimeter);
 string SearchPath(string path, string *splitted);
 void lsr(string arg);
 void lsRecursion(DIR *parent, string parentPath, int howDeep);
-void printDirent(DIR *directory, int howDeep);
 string trimWhiteSpace(string str);
 
 
@@ -207,10 +206,10 @@ void lsr(string arg)
 void lsRecursion(DIR *parent,string parentPath, int howDeep)
 
 {
-	//printf("lsRecursion started\n");
+	printf("lsRecursion started\n");
 	struct stat s;
 	dirent *currentEntry;
-	
+	cout << parentPath << "\n";
 	//printDirent(parent, howDeep); //MOVED TO NEW LOCATION, SEE BELOW
 	
 	while(( currentEntry = readdir(parent)) != NULL)
@@ -225,50 +224,33 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
             {
                 f += "    ";
             }
-		    //(if it starts with a period, we can ignore it)	
-			if(stat(currentEntry->d_name, &s) == 0 && S_ISDIR(s.st_mode))
+		    //(if it starts with a period, we can ignore it)
+		    // Directory Char 0x4 and File Char 0x8 from cplusplus.com
+			if(/*stat(currentEntry->d_name, &s) == 0 && S_ISDIR(s.st_mode) &&*/ currentEntry->d_type == 0x4	)
 			{//if it's a directory
 			    cout << f << "\033[1;34m" << currentEntry->d_name << " (Directory)\033[0m\n";
-			    DIR *recursiveDir = opendir( (parentPath + currentEntry->d_name).c_str() );
-				lsRecursion(recursiveDir,parentPath + currentEntry->d_name, howDeep+1);
+			    DIR *recursiveDir = opendir( (parentPath + "/" + currentEntry->d_name).c_str() );
+			    cout << (parentPath + "/" + currentEntry->d_name).c_str() << "\n";
+			    if(recursiveDir != NULL)
+			    {
+				lsRecursion(recursiveDir,parentPath + "/" + currentEntry->d_name, howDeep+1);
+				}
 			}
-			else if(s.st_mode & S_IEXEC)
+			else if( currentEntry->d_type == 0x8)
 			{
-			    cout << f << "\033[1;32m" << currentEntry->d_name << " (" << s.st_size << " bytes)"<< "\n";
+			    if(stat(currentEntry->d_name, &s) == 0 && s.st_mode & S_IXUSR)
+			    {
+			        cout << f << "\033[1;32m" << currentEntry->d_name << " (" << s.st_size << " bytes)"<< "\n";
+			    }
+			    else
+			    {
+			        cout << f << "\033[0m" << currentEntry->d_name << " (" << s.st_size << " bytes)"<< "\n";
+			    }
+			    cout << "\033[0m";
 			}
-			else
-			{
-			    cout << f << "\033[0m" << currentEntry->d_name << " (" << s.st_size << " bytes)"<< "\n";
-			}
-			cout << "\033[0m";
 		} else {
 			//printf("FILE WITH A PERIOD: ");
 			//cout << currentEntry->d_name << "\n";
 		}
 	}
 }
-
-/*
-void printDirent(DIR *directory, int howDeep) //The below is an idea or start for printing things out from the directory 
-{
-	if ((data.attribute & _A_SUBDIR) == _A_SUBDIR)
-	{
-		cout <<	"[" <<data.name<< "]" << endl;
-	}
-	else
-	{
-		cout << data.name << endl;
-	}
-	
-}
-logic for printDir:
-printdir(dir,howdeep)
-string prefix = "";
-for(int i=0; i<howdeep; i++)
-{
-	prefix += "\t";
-}
-<printing logic>
-print line:
-cout << (color) << prefix << filename << "\n" << (default color);
-	*/
