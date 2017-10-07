@@ -206,10 +206,10 @@ void lsr(string arg)
 void lsRecursion(DIR *parent,string parentPath, int howDeep)
 
 {
-	printf("lsRecursion started\n");
+	//printf("lsRecursion started\n");
 	struct stat s;
 	dirent *currentEntry;
-	cout << parentPath << "\n";
+	//cout << parentPath << "\n";
 	//printDirent(parent, howDeep); //MOVED TO NEW LOCATION, SEE BELOW
 	
 	while(( currentEntry = readdir(parent)) != NULL)
@@ -230,7 +230,7 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 			{//if it's a directory
 			    cout << f << "\033[1;34m" << currentEntry->d_name << " (Directory)\033[0m\n";
 			    DIR *recursiveDir = opendir( (parentPath + "/" + currentEntry->d_name).c_str() );
-			    cout << (parentPath + "/" + currentEntry->d_name).c_str() << "\n";
+			    //cout << (parentPath + "/" + currentEntry->d_name).c_str() << "\n";
 			    if(recursiveDir != NULL)
 			    {
 				lsRecursion(recursiveDir,parentPath + "/" + currentEntry->d_name, howDeep+1);
