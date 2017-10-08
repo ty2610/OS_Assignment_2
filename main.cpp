@@ -163,7 +163,7 @@ void lsr(string arg)
 	
 	if(arg.compare("")==0)
 	{
-		printf("no parent\n");
+		//printf("no parent\n");
 		DIR *dir = opendir("./");
 		lsRecursion(dir,"./", 0);
 		
@@ -185,7 +185,7 @@ void lsr(string arg)
 void lsRecursion(DIR *parent,string parentPath, int howDeep)
 
 {
-	printf("lsRecursion started\n");
+	//printf("lsRecursion started\n");
 	struct stat s;
 	dirent *currentEntry;
 	
@@ -237,33 +237,4 @@ string trimWhiteSpace(string str) {
     return str.substr(first, (last - first + 1));
 }
 
-/*
-void printDirent(DIR *directory, int howDeep)
-{
-	dirent *currentEntry;
-	for(int i=0; i < howDeep;i++)
-	{
-		printf("Entering printDirent: ");
-		printf("FILE WITH NO PERIOD: ");
-		cout << currentEntry->d_name << "\n";
-		//cout <<	"[" <<data.name<< "]" << endl;
-	}
-	return;
-}
-/*
-logic for printDir:
 
-printdir(dir,howdeep)
-string prefix = "";
-for(int i=0; i<howdeep; i++)
-{
-	prefix += "\t";
-}
-
-<printing logic>
-print line:
-cout << (color) << prefix << filename << "\n" << (default color);
-
-
-
-	*/
