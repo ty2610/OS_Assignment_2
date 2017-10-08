@@ -163,11 +163,6 @@ string trimWhiteSpace(string str) {
 }
 
 void lsr(string arg)
-/*TODO:
-	-implement printDir
-	-error checking
-*/
-
 //if they type in an argument, pass that. If not, pass an empty string
 {
 	
@@ -253,4 +248,5 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 			//cout << currentEntry->d_name << "\n";
 		}
 	}
+	closedir(parent);
 }
