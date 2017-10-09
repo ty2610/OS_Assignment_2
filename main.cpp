@@ -9,33 +9,25 @@
 #include <sys/wait.h>
 #include <pwd.h>
 
+
 //This is a CPP that will be compiled under c++ standard 11
 //compilable with g++ -o main main.cpp -std=c++11
 
 using namespace std;
 
 string* splitStringWithDelimeter(string path, string delimeter);
-
 string SearchPath(string path, string *splitted);
 void lsr(string arg);
 void lsRecursion(DIR *parent, string parentPath, int howDeep);
 string trimWhiteSpace(string str);
 
-
 int main() {
     //getenv() will determine the PATH environment variable
     //use fork() and execv() for spawning new processes
-	//lsr("~/"); //just used for testing lsr()
-
-
     string id;
     string path = getenv("PATH");
     string colonDelimiter = ":";
     string *splitted = splitStringWithDelimeter(path,colonDelimiter); // this function is to only be used on delimeters of String type of size 1
-
-    //cout << path << endl;
-
-
 
     bool running = true;
 
@@ -134,7 +126,7 @@ string SearchPath(string path, string *splitted)
         DIR *dir = opendir(splitted[i].c_str());
         if (dir == NULL)
         {
-            cout << "Error Opening " << splitted[i].c_str() << endl;
+            //cout << "Error Opening " << splitted[i].c_str() << endl;
         }
         else
         {
@@ -152,6 +144,7 @@ string SearchPath(string path, string *splitted)
     return "";
 }
 
+
 string trimWhiteSpace(string str) {
     size_t first = str.find_first_not_of(' ');
     if (string::npos == first)
@@ -168,13 +161,9 @@ void lsr(string arg)
 	
 	if(arg.compare("")==0)
 	{
-		//printf("<NO ARG GIVEN>\n");//debug text
 		DIR *dir = opendir("./");
 		lsRecursion(dir,"./", 0);
-		
 	} else {
-		//printf("<ARG GIVEN>\n"); //debug text
-
 		if(!arg.compare(0,1,"~"))
 		{//if using shorthand for home folder
 			arg.replace(0,1,getpwuid(getuid())->pw_dir);
@@ -191,29 +180,20 @@ void lsr(string arg)
 		{
 			DIR *dir = opendir(arg.c_str());
 			lsRecursion(dir,arg, 0);
-		}
-		
-	}
-	
-	
+		}	
+	}	
 }
 
 void lsRecursion(DIR *parent,string parentPath, int howDeep)
-
 {
-	//printf("lsRecursion started\n");
 	struct stat s;
 	dirent *currentEntry;
-	//cout << parentPath << "\n";
-	//printDirent(parent, howDeep); //MOVED TO NEW LOCATION, SEE BELOW
-	
+    
 	while(( currentEntry = readdir(parent)) != NULL)
 	{
-		//printf("howDeep= %d",howDeep);
 		if(currentEntry->d_name[0]!='.' )
 		{   
 		    //if the name of the entry doesn't start with a period
-			//printf("FILE WITH NO PERIOD: ");
 			string f = "";
             for(int i=0; i<howDeep; i++)
             {
@@ -244,9 +224,8 @@ void lsRecursion(DIR *parent,string parentPath, int howDeep)
 			    cout << "\033[0m";
 			}
 		} else {
-			//printf("FILE WITH A PERIOD: ");
-			//cout << currentEntry->d_name << "\n";
 		}
 	}
 	closedir(parent);
 }
+
