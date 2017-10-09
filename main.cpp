@@ -51,8 +51,9 @@ int main() {
             if (trimWhiteSpace(id) == "lsr") {
                 lsr("");
             } else if (trimWhiteSpace(id).substr(0,4) == "lsr ") {
-                lsr(trimWhiteSpace(id.substr(3)));
+                lsr(trimWhiteSpace(trimWhiteSpace(id).substr(3)));
             } else {
+                id = trimWhiteSpace(id);
                 string spaceDelimiter = " ";
                 string *temp = splitStringWithDelimeter(id, spaceDelimiter);
                 int returnStatus;
